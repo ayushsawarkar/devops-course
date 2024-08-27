@@ -1,0 +1,33 @@
+Create a cluster in k8s:
+
+eksctl create cluster --name <name> --version 1.22 --node-type t3.micro --nodes 2
+
+Delete a cluster - 	eksctl delete cluster --name=<name> 
+
+----------------x------------------------------x--------------------x------------------------x-----------------------x--------------------------x--------------------------
+
+HPA steps:
+
+1. Create a cluster
+
+2. Install the metrics server: check by kubectl get deployment metrics-server -n kube-system
+
+3. kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+4. kubectl apply -f hpa-php-apache.yaml
+
+5. Create load on the cluster
+
+kubectl run -i --tty load-generator --rm --image=busybox:1.28 --restart=Never -- /bin/sh -c "while sleep 0.01; do wget -q -O- http://php-apache; done"
+
+6. In another terminal run the following command:
+
+kubectl get hpa php-apache
+
+7. Stop load by Ctrl + C
+
+8. After experimenting delete the resources:
+
+kubectl delete deployment.apps/php-apache service/php-apache horizontalpodautoscaler.autoscaling/php-apache
+
+
